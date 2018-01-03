@@ -1,0 +1,6 @@
+busybox*
+linux*
+rootfs
+tmpdir
+arm-linux-kernel
+rootfs.ext3
