@@ -2,6 +2,8 @@
 
 Run or debug arm linux with qemu
 
+(Ubuntu 16.04 LTS)
+
 ## Build
 
 ```
