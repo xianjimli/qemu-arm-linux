@@ -1,12 +1,15 @@
 #!/bin/bash
 
 export ARCH=arm  
+export MACHINE=vexpress
+export TARGET=arm-linux
+export GDB_VERSION=8.0
 export KERNEL_VERSION=4.4.1
 export BUSYBOX_VERSION=1.25.1
 export CROSS_COMPILE=arm-linux-gnueabihf-
 
 function prepare() {
-  apt-get -y install qemu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+  apt-get -y install qemu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libexpat1-dev libncurses5-dev
 }
 
 function download_linux() {
@@ -22,7 +25,7 @@ function download_linux() {
 
 function build_linux() {
   cd linux-${KERNEL_VERSION}
-  make vexpress_defconfig  
+  make ${MACHINE}_defconfig  
   make zImage -j8  
   make modules -j8  
   make dtbs 
@@ -77,14 +80,44 @@ function make_rootfs() {
  umount tmpdir 
 }
 
-function build() {
- prepare
- download_linux
- build_linux
- copy_linux 
- build_busybox
- make_rootfs
+function download_gdb() {
+  if [ -e gdb-${GDB_VERSION}.tar.xz ]
+  then 
+    echo gdb-${GDB_VERSION}.tar.xz exist
+  else 
+    wget http://ftp.gnu.org/gnu/gdb/gdb-${GDB_VERSION}.tar.gz
+  fi
+
+  tar xf gdb-${GDB_VERSION}.tar.gz
 }
+
+function build_gdb() {
+  cd gdb-${GDB_VERSION}
+  ./configure --target=${TARGET} --enable-sim --prefix=/usr/local/
+  make
+  make install
+  cd -
+}
+
+function gen_gdb_init() {
+  echo "file linux-${KERNEL_VERSION}/vmlinux" >gdbinit
+  echo "dir linux-${KERNEL_VERSION}" >>gdbinit
+  echo "target remote :1234" >>gdbinit
+}
+
+function build() {
+  prepare
+  download_linux
+  build_linux
+  copy_linux 
+  build_busybox
+  make_rootfs
+  download_gdb
+  build_gdb
+  gen_gdb_init
+}
+
+build
 
 echo "Done"
 
