@@ -129,6 +129,7 @@ function build() {
   download_linux
   build_linux
   copy_linux 
+  download_busybox
   build_busybox
   make_rootfs
   download_gdb
