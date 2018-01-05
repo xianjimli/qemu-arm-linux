@@ -20,10 +20,16 @@ function download_linux() {
     wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${KERNEL_VERSION}.tar.xz
   fi
 
-  tar xf linux-${KERNEL_VERSION}.tar.xz
+  if [ -e linux-${KERNEL_VERSION} ]
+  then 
+    echo linux-${KERNEL_VERSION} exist
+  else 
+    tar xf linux-${KERNEL_VERSION}.tar.xz
+  fi
 }
 
 function build_linux() {
+  echo "build_linux ..."
   cd linux-${KERNEL_VERSION}
   make ${MACHINE}_defconfig  
   make zImage -j8  
@@ -47,10 +53,17 @@ function download_busybox() {
   else 
     wget https://busybox.net/downloads/busybox-${BUSYBOX_VERSION}.tar.bz2
   fi
-  tar xf busybox-${BUSYBOX_VERSION}.tar.bz2
+
+  if [ -e busybox-${BUSYBOX_VERSION} ]
+  then 
+    echo busybox-${BUSYBOX_VERSION} exist
+  else 
+    tar xf busybox-${BUSYBOX_VERSION}.tar.bz2
+  fi
 }
 
 function build_busybox() {
+  echo "build_busybox..."
   cd busybox-${BUSYBOX_VERSION}
   make defconfig  
   make CROSS_COMPILE=${CROSS_COMPILE}
@@ -81,21 +94,27 @@ function make_rootfs() {
 }
 
 function download_gdb() {
-  if [ -e gdb-${GDB_VERSION}.tar.xz ]
+  if [ -e gdb-${GDB_VERSION}.tar.gz ]
   then 
-    echo gdb-${GDB_VERSION}.tar.xz exist
+    echo gdb-${GDB_VERSION}.tar.gz exist
   else 
     wget http://ftp.gnu.org/gnu/gdb/gdb-${GDB_VERSION}.tar.gz
   fi
 
-  tar xf gdb-${GDB_VERSION}.tar.gz
+  if [ -e gdb-${GDB_VERSION} ]
+  then 
+    echo gdb-${GDB_VERSION} exist
+  else 
+    tar xf gdb-${GDB_VERSION}.tar.gz
+  fi
 }
 
 function build_gdb() {
+  echo "build_gdb..."
   cd gdb-${GDB_VERSION}
   ./configure --target=${TARGET} --enable-sim --prefix=/usr/local/
   make
-  make install
+  cp -fv gdb-${GDB_VERSION}/gdb/gdb /usr/local/bin/arm-linux-gdb
   cd -
 }
 
