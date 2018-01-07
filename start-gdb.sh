@@ -1,3 +1,3 @@
 #!/bin/bash
 
-arm-linux-gdb -ix gdbinit
+./arm-linux-gdb -ix gdbinit

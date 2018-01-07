@@ -8,9 +8,6 @@ export KERNEL_VERSION=4.4.1
 export BUSYBOX_VERSION=1.25.1
 export CROSS_COMPILE=arm-linux-gnueabihf-
 
-function prepare() {
-  apt-get -y install qemu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libexpat1-dev libncurses5-dev
-}
 
 function download_linux() {
   if [ -e linux-${KERNEL_VERSION}.tar.xz ]
@@ -76,6 +73,7 @@ function make_rootfs() {
  rm -rf rootfs
  mkdir -p rootfs/lib
  mkdir -p rootfs/dev
+ mkdir -p rootfs/proc
 
  cp -Pvf /usr/arm-linux-gnueabihf/lib/* rootfs/lib
  cp busybox-${BUSYBOX_VERSION}/_install/* rootfs/ -rf
@@ -114,7 +112,7 @@ function build_gdb() {
   cd gdb-${GDB_VERSION}
   ./configure --target=${TARGET} --enable-sim --prefix=/usr/local/
   make
-  cp -fv gdb-${GDB_VERSION}/gdb/gdb /usr/local/bin/arm-linux-gdb
+  cp -fv gdb-${GDB_VERSION}/gdb/gdb ./arm-linux-gdb
   cd -
 }
 
@@ -125,7 +123,6 @@ function gen_gdb_init() {
 }
 
 function build() {
-  prepare
   download_linux
   build_linux
   copy_linux 
